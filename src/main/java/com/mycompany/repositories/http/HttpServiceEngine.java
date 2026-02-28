@@ -1,13 +1,10 @@
 package com.mycompany.repositories.http;
 
-import java.util.List;
-
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
+
+import com.mycompany.repositories.constant.Constant;
 
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -20,33 +17,30 @@ public class HttpServiceEngine {
 	
 	private final RestClient restClient;
 	
-	public String makeHttpCall() {
+	public String makeHttpCall(HttpRequest httpRequest) {
 		log.info("Inside makeHttpCall method, Making HTTP "
 				+ "call to external service....");
 		
-		HttpHeaders httpHeaders = new HttpHeaders();
-		httpHeaders.setAccept(List.of(MediaType.APPLICATION_JSON));
-		httpHeaders.set("X-GitHub-Api-Version", "2022-11-28");
 		
-		ResponseEntity<String> httpRespone = restClient.method(HttpMethod.GET)
-		.uri(uriBuilder -> uriBuilder
-                .scheme("https")
-                .host("api.github.com")
-                .path("/search/repositories")
-                .queryParam("q", "spring language:java") 
-                .queryParam("sort", "stars")
-                .queryParam("order", "desc")
-                .build())
-        .headers(restClientHeaders -> restClientHeaders.addAll(httpHeaders))
-        .retrieve()
-        .toEntity(String.class);
+		ResponseEntity<String> httpResponse = restClient.method(
+				httpRequest.getHttpMethod())
+				.uri(uriBuilder -> uriBuilder
+						.path(httpRequest.getPath())
+						.queryParam(Constant.QUERY_PARAM_Q, httpRequest.getQuery()) 
+						.queryParam(Constant.QUERY_PARAM_SORT, httpRequest.getSort())
+						.queryParam(Constant.QUERY_PARAM_ORDER, 
+								Constant.GITHUB_SEARCH_ORDER_DESCENDING)
+						.build())
+				.headers(restClientHeaders -> restClientHeaders.addAll(
+						httpRequest.getHttpHeaders()))
+				.retrieve()
+				.toEntity(String.class);
         
-        log.info("HTTP call completed. "
-        		+ "\n Status Code: {}, "
-        		+ "\n Response body: {}", httpRespone.getStatusCode(), 
-        		httpRespone.getBody());
+        log.info("HTTP call completed. " + "\n Status Code: {}, "
+        		+ "\n Response body: {}", httpResponse.getStatusCode(), 
+        		httpResponse.getBody());
 		
-		return httpRespone.getBody();
+		return httpResponse.getBody();
 	}
 	
 	@PostConstruct
