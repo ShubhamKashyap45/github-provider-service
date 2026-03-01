@@ -1,9 +1,12 @@
 package com.mycompany.repositories.controller;
 
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.mycompany.repositories.pojo.GithubRequest;
+import com.mycompany.repositories.pojo.GithubResponse;
 import com.mycompany.repositories.service.interfaces.GithubService;
 
 import lombok.RequiredArgsConstructor;
@@ -18,14 +21,17 @@ public class GithubController {
 	private final GithubService githubService;
 	
 	@PostMapping("/search")
-	public String searchRepositories() {
-		log.info("Inside searchRepositores method.....");
+	public GithubResponse searchRepositories(@RequestBody GithubRequest createGithubRequest) {
+		log.info("Inside searchRepositores method "
+				+ "Received GitHub search request in "
+				+ "createGithubRequest: {}", createGithubRequest);
 		
-		String response = githubService.searchRepo();
+		GithubResponse response = githubService.searchRepo(createGithubRequest);
 		
-		log.info("Response reviced: {}", response);
+		log.info("Response reviced from GithubServiceImp, "
+				+ "sending response to Client....");
 		
-		return "Github Repositories fetched: " + response;
+		return response;
 		
 	}
 

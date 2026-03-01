@@ -1,11 +1,19 @@
 package com.mycompany.repositories.service.impl;
 
+import java.util.List;
+
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import com.mycompany.repositories.github.GithubSearchResponse;
 import com.mycompany.repositories.http.HttpRequest;
 import com.mycompany.repositories.http.HttpServiceEngine;
+import com.mycompany.repositories.pojo.GithubRequest;
+import com.mycompany.repositories.pojo.GithubResponse;
+import com.mycompany.repositories.pojo.Repository;
 import com.mycompany.repositories.service.helper.CreateGithubRequestHelper;
 import com.mycompany.repositories.service.interfaces.GithubService;
+import com.mycompany.repositories.util.JsonUtil;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,24 +22,87 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @RequiredArgsConstructor
 public class GithubServiceImpl implements GithubService {
-	
+
 	private final HttpServiceEngine httpServiceEngine;
 	
 	private final CreateGithubRequestHelper createGithubRequestHelper;
+	
+	private final JsonUtil jsonUtil;
+
 
 	@Override
-	public String searchRepo() {
-		log.info("Inside searchRepo() method...");
-		
+	public GithubResponse searchRepo(GithubRequest createGithubRequest) {
+		log.info("Inside searchRepo method...");
+				
 		/*
-		 * Preparing githubRequest in Helper function
+		 * Preparing httpRequest in Helper function
 		 */
 		HttpRequest httpRequest = createGithubRequestHelper
-				.prepareCreateGithubRequest();
+				.prepareCreateGithubRequest(createGithubRequest);
 		
-		String httpResponse = httpServiceEngine.makeHttpCall(httpRequest);
-		log.info("Responsed recieved in httpResponse: {}", httpResponse);
-		return httpResponse;
+		log.info("httpRequest prepared, passing data to makeHttpCall....");
+		
+		/*
+		 *  Passing httpRequest to HttpServiceEngine, which is 
+		 *  received from Helper function
+		 */
+		ResponseEntity<String> httpResponse = httpServiceEngine
+				.makeHttpCall(httpRequest);
+		
+		/*
+		 * Converting JSON String to GithubSearchResponse Class 
+		 */
+		GithubSearchResponse githubSearchResponse = jsonUtil.convertJsonToObject(
+				httpResponse.getBody(), GithubSearchResponse.class);
+
+		log.info("JSON String converted to Object "
+				+ "githubSearchResponse: {}", githubSearchResponse);
+		
+		
+		GithubResponse githubResponse = mapGithubSearchResponseToGithubResponse(
+						githubSearchResponse);
+		
+		log.info("Responsed recieved from HttpServiceEngine....");
+		return githubResponse;
+	}
+
+
+	private GithubResponse mapGithubSearchResponseToGithubResponse(
+			GithubSearchResponse githubSearchResponse) {
+		
+		if(githubSearchResponse == null) {
+			log.debug("mapGithubSearchResponseToGithubRepositoryResponse "
+					+ "called with null");
+			return null;
+		}
+		
+		GithubResponse githubResponse = new GithubResponse();
+
+	    // Map the list of GithubRepositoryApiItem to Repository
+	    if (githubSearchResponse.getItems() != null) {
+	        List<Repository> repositories = githubSearchResponse.getItems()
+	        		.stream()
+	        		.map(item -> {
+	            Repository repo = new Repository();
+	            repo.setId(item.getId());
+	            repo.setName(item.getName());
+	            repo.setDescription(item.getDescription());
+	            repo.setOwner(item.getOwner().getLogin());
+	            repo.setLanguage(item.getLanguage());
+	            repo.setStars(item.getStars());
+	            repo.setForks(item.getForks());
+	            repo.setLastUpdated(item.getLastUpdated());
+	            return repo;
+	        }).toList();
+	        
+	        githubResponse.setRepositories(repositories);
+	        githubResponse.setMessage("Repositories fetched successfully");
+	    }
+
+	    log.info("Mapped GithubSearchResponse to GithubResponse: {}", githubResponse);
+
+	    return githubResponse;
+		
 	}
 
 
