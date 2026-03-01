@@ -9,10 +9,7 @@ import lombok.Data;
 public class HttpRequest {
 	
 	private HttpMethod httpMethod;
-	private String path;
-	private String query = "spring";
-	private String language = "java";
-	private String sort = "stars";
+	private String url;
 	private HttpHeaders httpHeaders;
 
 }
