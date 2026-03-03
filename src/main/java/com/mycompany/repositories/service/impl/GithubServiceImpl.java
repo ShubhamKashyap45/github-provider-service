@@ -13,6 +13,7 @@ import com.mycompany.repositories.http.HttpServiceEngine;
 import com.mycompany.repositories.pojo.GithubRequest;
 import com.mycompany.repositories.pojo.GithubResponse;
 import com.mycompany.repositories.pojo.Repository;
+import com.mycompany.repositories.service.ValidationService;
 import com.mycompany.repositories.service.helper.CreateGithubRequestHelper;
 import com.mycompany.repositories.service.interfaces.GithubService;
 import com.mycompany.repositories.util.JsonUtil;
@@ -30,23 +31,15 @@ public class GithubServiceImpl implements GithubService {
 	private final CreateGithubRequestHelper createGithubRequestHelper;
 	
 	private final JsonUtil jsonUtil;
+	
+	private final ValidationService validationService;
 
 
 	@Override
 	public GithubResponse searchRepo(GithubRequest createGithubRequest) {
 		log.info("Inside searchRepo method...");
 		
-		if(createGithubRequest.getQuery() == null || 
-				createGithubRequest.getQuery().isEmpty()) {
-			
-			log.error("Validation failed: 'query' field missing in "
-					+ "the request body");
-			
-			throw new GithubProviderException(
-					"GHP03-400-01", 
-					"Required filed 'query' missing in the request body", 
-					HttpStatus.BAD_REQUEST);
-		}
+		validationService.isValid(createGithubRequest);
 				
 		/*
 		 * Preparing httpRequest in Helper function
