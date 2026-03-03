@@ -2,9 +2,11 @@ package com.mycompany.repositories.service.impl;
 
 import java.util.List;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import com.mycompany.repositories.exception.GithubProviderException;
 import com.mycompany.repositories.github.GithubSearchResponse;
 import com.mycompany.repositories.http.HttpRequest;
 import com.mycompany.repositories.http.HttpServiceEngine;
@@ -33,6 +35,18 @@ public class GithubServiceImpl implements GithubService {
 	@Override
 	public GithubResponse searchRepo(GithubRequest createGithubRequest) {
 		log.info("Inside searchRepo method...");
+		
+		if(createGithubRequest.getQuery() == null || 
+				createGithubRequest.getQuery().isEmpty()) {
+			
+			log.error("Validation failed: 'query' field missing in "
+					+ "the request body");
+			
+			throw new GithubProviderException(
+					"GHP03-400-01", 
+					"Required filed 'query' missing in the request body", 
+					HttpStatus.BAD_REQUEST);
+		}
 				
 		/*
 		 * Preparing httpRequest in Helper function
