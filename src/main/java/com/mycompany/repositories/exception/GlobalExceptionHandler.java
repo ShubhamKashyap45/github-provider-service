@@ -5,6 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import com.mycompany.repositories.constant.ErrorCodeEnum;
 import com.mycompany.repositories.pojo.ErrorResponse;
 
 import lombok.extern.slf4j.Slf4j;
@@ -24,7 +25,23 @@ public class GlobalExceptionHandler {
 		ErrorResponse body = new ErrorResponse();
 		body.setErrorCode(ex.getErrorCode());
 		body.setErrorMessage(ex.getErrorMessage());
+		
 		return new ResponseEntity<>(body, status);
+		
+	}
+	
+	@ExceptionHandler(Exception.class)
+	public ResponseEntity<ErrorResponse> handleGenericException(Exception ex){
+		log.error("Generic exception caught: {}", ex);
+		
+		HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
+		
+		ErrorResponse body = new ErrorResponse();
+		body.setErrorCode(ErrorCodeEnum.GENERIC_ERROR.getErrorCode());
+		body.setErrorMessage(ErrorCodeEnum.GENERIC_ERROR.getErrorMessage());
+		
+		return new ResponseEntity<>(body, status);
+		
 		
 	}
 	
