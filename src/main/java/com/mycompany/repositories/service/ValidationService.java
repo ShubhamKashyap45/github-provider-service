@@ -5,6 +5,9 @@ import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import com.mycompany.repositories.constant.ErrorCodeEnum;
+import com.mycompany.repositories.constant.GithubLanguage;
+import com.mycompany.repositories.constant.GithubSort;
 import com.mycompany.repositories.exception.GithubProviderException;
 import com.mycompany.repositories.pojo.GithubRequest;
 
@@ -13,6 +16,19 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Slf4j
 public class ValidationService {
+	
+	private static final List<String> VALID_GITHUB_LANGUAGES = List.of(
+			GithubLanguage.JAVA.getValue(),
+            GithubLanguage.PYTHON.getValue(),
+            GithubLanguage.JAVASCRIPT.getValue(),
+            GithubLanguage.GO.getValue(),
+            GithubLanguage.RUBY.getValue(),
+            GithubLanguage.C_SHARP.getValue(),
+            GithubLanguage.C_PLUS_PLUS.getValue(),
+            GithubLanguage.PHP.getValue(),
+            GithubLanguage.TYPESCRIPT.getValue(),
+            GithubLanguage.KOTLIN.getValue()
+	);
 
 	public void isValid(GithubRequest req) {
 
@@ -20,8 +36,8 @@ public class ValidationService {
 			log.error("Validation failed: request body missing");
 			
 			throw new GithubProviderException(
-					"GHP03-400-01",
-					"Request body is missing",
+					ErrorCodeEnum.REQUEST_BODY_MISSING.getErrorCode(),
+					ErrorCodeEnum.REQUEST_BODY_MISSING.getErrorMessage(),
 					HttpStatus.BAD_REQUEST);
 		}
 		
@@ -30,8 +46,8 @@ public class ValidationService {
 					+ "the request body");
 
 			throw new GithubProviderException(
-					"GHP03-400-02", 
-					"Required filed 'query' missing in the request body", 
+					ErrorCodeEnum.QUERY_MISSING.getErrorCode(), 
+					ErrorCodeEnum.QUERY_MISSING.getErrorMessage(), 
 					HttpStatus.BAD_REQUEST);
 		}
 		
@@ -40,22 +56,34 @@ public class ValidationService {
 					+ "in request body");
 			
 			throw new GithubProviderException(
-					"GHP03-400-03", 
-					"Required filed 'language' missing in the request body", 
+					ErrorCodeEnum.LANGUAGE_MISSING.getErrorCode(), 
+					ErrorCodeEnum.LANGUAGE_MISSING.getErrorMessage(), 
 					HttpStatus.BAD_REQUEST);
 			
 		}
 		
+		if(!VALID_GITHUB_LANGUAGES.contains(req.getLanguage().toLowerCase())) {
+			 log.error("Validation failed: Invalid GitHub language '{}'", 
+					 req.getLanguage());
+			 
+			 throw new GithubProviderException(
+		                ErrorCodeEnum.INVALID_GITHUB_LANGUAGE.getErrorCode(),
+		                ErrorCodeEnum.INVALID_GITHUB_LANGUAGE.getErrorMessage(),
+		                HttpStatus.BAD_REQUEST
+		        );
+		}
+		
 		
 	    if (req.getSort() != null &&
-	            !List.of("stars", "forks", "updated").contains(req.getSort())) {
+	            !List.of(GithubSort.STARS.getValue(), GithubSort.FORKS.getValue(), 
+	            		GithubSort.UPDATED.getValue()).contains(req.getSort())) {
 	    	
 	    	log.error("Validation failed: Invalid sort parameter "
 	    			+ "'"+ req.getSort() + "'");
 	    	
 	        throw new GithubProviderException(
-	                "GHP03-400-04",
-	                "Invalid sort parameter; must be 'stars', 'forks', or 'updated'",
+	                ErrorCodeEnum.INVALID_SORT.getErrorCode(),
+	                ErrorCodeEnum.INVALID_SORT.getErrorMessage(),
 	                HttpStatus.BAD_REQUEST
 	        );
 	    }

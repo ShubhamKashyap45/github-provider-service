@@ -21,7 +21,8 @@ public class GithubController {
 	private final GithubService githubService;
 	
 	@PostMapping("/search")
-	public GithubResponse searchRepositories(@RequestBody GithubRequest createGithubRequest) {
+	public GithubResponse searchRepositories(@RequestBody GithubRequest 
+			createGithubRequest) {
 		log.info("Inside searchRepositores method "
 				+ "Received GitHub search request in "
 				+ "createGithubRequest: {}", createGithubRequest);
