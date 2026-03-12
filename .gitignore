@@ -31,3 +31,9 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# Ignore real Spring Boot configs
+src/main/resources/application*.properties
+
+# Allow example config to be committed
+!src/main/resources/application-example.properties
