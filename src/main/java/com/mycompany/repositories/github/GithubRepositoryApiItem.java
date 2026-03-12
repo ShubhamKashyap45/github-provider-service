@@ -1,5 +1,7 @@
 package com.mycompany.repositories.github;
 
+import java.time.LocalDateTime;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -22,7 +24,7 @@ public class GithubRepositoryApiItem {
     private int forks;
 
     @JsonProperty("updated_at")
-    private String lastUpdated;
+    private LocalDateTime lastUpdated;
 
 
 }

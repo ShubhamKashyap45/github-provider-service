@@ -1,5 +1,6 @@
 package com.mycompany.repositories.controller;
 
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -12,10 +13,11 @@ import com.mycompany.repositories.service.interfaces.GithubService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/v1/api/github")
+@RequestMapping("/api/v1/github")
 public class GithubController {
 	
 	private final GithubService githubService;
@@ -35,5 +37,19 @@ public class GithubController {
 		return response;
 		
 	}
+	
+	
+	@GetMapping("repositories")
+	public GithubResponse getRepositories() {
+		log.info("Indside get repositories method...");
+		
+		GithubResponse response = githubService.getRepositories();
+		
+		log.info("Data fetched from DB, sending to client");
+		
+		return response;
+	}
+	
+	
 
 }
