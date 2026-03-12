@@ -1,5 +1,7 @@
 package com.mycompany.repositories.pojo;
 
+import java.time.LocalDateTime;
+
 import lombok.Data;
 
 @Data
@@ -12,6 +14,6 @@ public class Repository {
     private String language;
     private int stars;
     private int forks;
-    private String lastUpdated;
+    private LocalDateTime lastUpdated;
 
 }

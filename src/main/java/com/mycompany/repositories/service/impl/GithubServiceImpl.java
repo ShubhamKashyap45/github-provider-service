@@ -94,7 +94,7 @@ public class GithubServiceImpl implements GithubService {
 		        githubRepositoryDTO.size());
 		
 		/*
-		 * Converting DTO object to Entity object.
+		 * Map DTO object to Entity object.
 		 */
 		List<GithubRepositoryEntity> githubRepositoryEntity = mapper
 				.mapRepositoryDTOToEntity(githubRepositoryDTO);
@@ -128,6 +128,39 @@ public class GithubServiceImpl implements GithubService {
 		log.info("Mapped githubSearchResponse to githubResponse: {}", githubResponse);
 		
 		return githubResponse;
+	}
+
+
+	@Override
+	public GithubResponse getRepositories() {
+		log.info("Inside getRepositories");
+		
+		/*
+		 * Fetching data from the DB
+		 */
+		List<GithubRepositoryEntity> fetchedData = githubRepository.findAll();
+		
+		log.info("Repositores fetched from DB in fetchData: {}", fetchedData);
+		
+		
+		/*
+		 * Map Entity object to DTO object
+		 */
+		List<GithubRepositoryDTO> githubRepositoryDTO = mapper
+				.mapEntityToDTO(fetchedData);
+		
+		log.info("Data in githubRepositoryDTO: {}", githubRepositoryDTO);
+		
+		/*
+		 *  Map DTO to GithubResponse POJO
+		 */
+		GithubResponse githubResponse = mapper
+				.mapRepositoryDTOToGithubResponse(githubRepositoryDTO);
+		
+		log.info("Mapped values in githubResponse: {}", githubResponse);
+		
+		return githubResponse;
+		
 	}
 
 }

@@ -1,7 +1,5 @@
 package com.mycompany.repositories.mapper;
 
-import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
 import java.util.List;
 
 import org.springframework.stereotype.Component;
@@ -79,12 +77,7 @@ public class GithubMapper {
                     dto.setLanguage(item.getLanguage());
                     dto.setStars(item.getStars());
                     dto.setForks(item.getForks());
-
-                    LocalDateTime lastUpdated =
-                            OffsetDateTime.parse(item.getLastUpdated())
-                            .toLocalDateTime();
-
-                    dto.setLastUpdated(lastUpdated);
+                    dto.setLastUpdated(item.getLastUpdated());
 
                     return dto;
 
@@ -122,12 +115,78 @@ public class GithubMapper {
 
                     return entity;
 
-                })
+                }) 
                 .toList();
 
         log.info("Mapped GithubRepositoryDTO list to GithubRepositoryEntity list");
 
         return entities;
     }
+
+	public List<GithubRepositoryDTO> mapEntityToDTO(
+			List<GithubRepositoryEntity> fetchedData) {
+		
+		if(fetchedData == null) {
+			log.debug("Data fetch from DB with null");
+		}
+		
+		List<GithubRepositoryDTO> entities = fetchedData
+				.stream()
+				.map(entity -> {
+					
+					GithubRepositoryDTO dto = new GithubRepositoryDTO();
+					
+					dto.setId(entity.getId());
+					dto.setName(entity.getName());
+					dto.setDescription(entity.getDescription());
+					dto.setOwner(entity.getOwner());
+					dto.setLanguage(entity.getLanguage());
+					dto.setStars(entity.getStars());
+					dto.setForks(entity.getForks());
+					dto.setLastUpdated(entity.getLastUpdated());
+					
+					return dto;
+					
+				})
+				.toList();
+		
+		log.info("Mapped GithubEntity list to GithubDTO");
+		return entities;
+	}
+
+	public GithubResponse mapRepositoryDTOToGithubResponse(
+			List<GithubRepositoryDTO> githubRepositoryDTO) {
+		
+		if(githubRepositoryDTO == null) {
+			log.debug("Data recieved in githubRepositoryDTO with null");
+			return null;
+		}
+		
+		List<Repository> repositories = githubRepositoryDTO
+				.stream()
+				.map(entity -> {
+					Repository repo = new Repository();
+					
+					repo.setId(entity.getId());
+					repo.setName(entity.getName());
+					repo.setDescription(entity.getDescription());
+					repo.setOwner(entity.getOwner());
+					repo.setLanguage(entity.getLanguage());
+					repo.setStars(entity.getStars());
+					repo.setForks(entity.getForks());
+					repo.setLastUpdated(entity.getLastUpdated());
+					
+					return repo;
+				})
+				.toList();
+		
+		GithubResponse response = new GithubResponse();
+		response.setRepositories(repositories);
+		
+		log.info("Mapped data from DTO to Github Response Pojo");
+		
+		return response;
+	}
+
 }
 
